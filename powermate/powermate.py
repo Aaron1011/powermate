@@ -1,8 +1,55 @@
 import usb.core
 
-dev = usb.core.find()
-dev.set_configuration()
-dev.detach_kernel_driver()
+PULSE_MODE_DIVIDE = 0
+PULSE_MODE_NORMAL = 1
+PULSE_MODE_MULTIPLY = 2
+
+class PowerMate(object):
+    def __init__(self):
+        self.dev = usb.core.find(idVendor=0x077d, idProduct=0x0410)
+        if dev == None:
+            raise Exception("Could not find the PowerMate")
+
+        self.dev.set_configuration()
+        
+        if self.dev.is_kernel_driver_active(0):
+            self.dev.detach_kernel_driver(0)
+
+    def set_brightness(self, brightness):
+        """Sets the brightness of the PowerMate's LED
+             brightness: A value from 0 (darkest) to 255 (brightest), inclusive
+        """
+        dev.ctrl_transfer(0x41, 0x01, 0x01, brightness, [], timeout=0)
+
+    def set_pulse(pulse):
+        """Sets whether or not to pulse constantly
+             pulse: A boolean value indicating whether to pulse (True), or not
+             (False)
+        """
+        dev.ctrl_transfer(0x41, 0x01, 0x03, int(pulse), [], timeout=99999999)
+
+    def set_pulse_asleep(pulse):
+        """Sets whether or not to pulse when the computer is asleep
+             pulse: A boolean value indicating whether to pulse (True), or not
+             (False)
+        """
+        dev.ctrl_transfer(0x41, 0x01, 0x02, 0, [], timeout=99999999)
+
+    def set_pulse_mode(mode, value=0)
+        """Sets the pulse mode and value of the PowerMate's LED
+             mode: One of PULSE_MODE_DIVIDE,   (higher values are slower),
+                          PULSE_MODE_NORMAL,   (value has not effect),
+                          PULSE_MODE_MULTIPLY, (higher values are faster)
+
+             value: A modifier for mode. Only valid for PULSE_MODE_DIVIDE and
+                    PULSE_MODE_MULTIPLY
+        """
+        wValue = (mode << 8) | 0x04 # Compute value: 0x04 is SET_PULSE_MODE command
+        wIndex = (value << 8) | pulse_mode
+
+        # Set pulse mode
+        dev.ctrl_transfer(0x41, 0x01, wValue, wIndex, [], timeout=0)
+
 
 dev.read(129, 6, timeout=99999999999) # endpoint address, length
 
