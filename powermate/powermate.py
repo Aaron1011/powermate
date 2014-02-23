@@ -35,17 +35,20 @@ class PowerMate(object):
         """
         dev.ctrl_transfer(0x41, 0x01, 0x02, 0, [], timeout=99999999)
 
-    def set_pulse_mode(mode, value=0)
-        """Sets the pulse mode and value of the PowerMate's LED
-             mode: One of PULSE_MODE_DIVIDE,   (higher values are slower),
-                          PULSE_MODE_NORMAL,   (value has not effect),
-                          PULSE_MODE_MULTIPLY, (higher values are faster)
-
-             value: A modifier for mode. Only valid for PULSE_MODE_DIVIDE and
-                    PULSE_MODE_MULTIPLY
+    def set_pulse_speed(speed)
+        """Sets the pulse speed of the PowerMate's LED
+             speed: A value from -255 to 255 (inclusive). Lower values are
+               slower, higher values are faster
         """
+        if speed < 0:
+            mode = 0
+            speed = -speed
+        elif speed == 0:
+            mode = 1
+        elif speed > 0:
+            mode = 2
         wValue = (mode << 8) | 0x04 # Compute value: 0x04 is SET_PULSE_MODE command
-        wIndex = (value << 8) | pulse_mode
+        wIndex = (speed << 8) | mode
 
         # Set pulse mode
         dev.ctrl_transfer(0x41, 0x01, wValue, wIndex, [], timeout=0)
